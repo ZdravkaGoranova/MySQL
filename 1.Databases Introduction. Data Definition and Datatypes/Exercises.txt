@@ -1,0 +1,100 @@
+-- 1
+
+CREATE DATABASE minions;
+USE minions;
+
+
+CREATE TABLE minions(
+`id` INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+`name` VARCHAR(47),
+`age` INT
+);
+
+-- 2
+CREATE TABLE towns (
+town_id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+name VARCHAR(47)
+);
+
+ALTER TABLE minions ADD  town_id INT;
+ALTER TABLE minions
+ADD CONSTRAINT fk_minions_towns 
+FOREIGN KEY minions(town_id)
+REFERENCES towns(town_id);
+
+INSERT INTO towns (town_id,name) VALUES
+(1, `Sofia`),
+(2, `Plovdiv`),
+(3, `Varna`);
+
+
+INSERT INTO minions (name ,age, town_id) VALUES
+(Kevin ,22, 1 ),
+(Bob ,15, 3),
+(Steward ,NULL, 2);
+
+
+SELECT  * FROM minions;
+SELECT  * FROM towns;
+
+-- 3
+
+INSERT INTO towns (town_id,name) 
+VALUES (1, `Sofia`),
+(2, `Plovdiv`),
+(3, `Varna`);
+
+INSERT INTO minions (name ,age, town_id) VALUES
+(Kevin ,22, 1 ),
+(Bob ,15, 3),
+(Steward ,NULL, 2);
+
+-- 4
+TRUNCATE TABLE minions;
+
+-- 5
+DROP TABLE minions;
+DROP TABLE towns;
+
+-- 6
+
+CREATE TABLE people(
+id INT  PRIMARY KEY  AUTO_INCREMENT ,
+name  VARCHAR(200)  NOT NULL,
+picture BLOB ,
+height DOUBLE (3,2),
+weight DOUBLE (5,2),
+gender CHAR(1) NOT NULL,
+birthdate DATE  NOT NULL,
+biography TEXT
+);
+
+INSERT INTO people (name , gender , birthdate)
+VALUES
+('NIKI','m', DATE (NOW())),
+('ANI','f', DATE (NOW())),
+('VIKI','F', DATE (NOW())),
+('MONI','m', DATE (NOW())),
+('PETKO','m', DATE (NOW()));
+
+SELECT  * FROM people;
+
+-- 7
+CREATE TABLE users (
+id INT PRIMARY KEY  AUTO_INCREMENT ,
+username  VARCHAR(30) NOT NULL,
+password VARCHAR(26)  NOT NULL,
+profile_picture BLOB ,
+last_login_time datetime,
+is_deleted BOOLEAN
+);
+
+
+INSERT INTO users (username, password )
+VALUES
+('Niki','12345' ),
+('Miki','12345' ),
+('Viki','12345' ),
+('Piki','12345' ),
+('Riki','12345' );
+SELECT  * FROM users;
