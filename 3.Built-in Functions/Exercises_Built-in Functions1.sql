@@ -103,7 +103,76 @@ SELECT
 FROM
     countries
 WHERE
-    (CHAR_LENGTH(country_name)
-    - CHAR_LENGTH(REPLACE(LOWER(country_name), 'a', '')))
+-- lower( country_name) LIKE '%a%a%a'
+ (CHAR_LENGTH(country_name)
+   - CHAR_LENGTH(REPLACE(LOWER(country_name), 'a', '')))
     >= 3
 ORDER BY iso_code;
+
+-- 11. Mix of Peak and River Names
+SELECT 
+    p.peak_name,
+    r.river_name,
+    LOWER(CONCAT(LEFT(p.peak_name,length(p.peak_name)-1), r.river_name)) AS mix
+FROM
+    rivers AS r,
+    peaks AS p
+WHERE
+    UPPER(RIGHT(p.peak_name, 1)) = UPPER(LEFT(r.river_name, 1))
+    ORDER BY MIX;
+    
+    -- 12. Games from 2011 and 2012 Year
+    
+SELECT 
+    `name`, DATE_FORMAT(start, '%Y-%m-%d') as start
+FROM
+    `games`
+    WHERE year(start) in (2011,2012)
+ORDER BY start , name
+LIMIT 50;
+
+    -- 13. User Email Providers
+
+SELECT 
+    user_name,
+SUBSTRING_INDEX(email, '@', - 1)AS `email provider`,
+REGEXP_REPLACE(email,'.*@','')AS `REGEXP`
+FROM
+    users
+    ORDER BY `email provider`ASC, user_name;
+
+-- 14. Get Users with IP Address Like Pattern
+SELECT 
+   user_name,ip_address
+FROM
+    users
+    WHERE ip_address LIKE '___.1%.%.___'
+    ORDER BY user_name ASC;
+    
+    -- 15. Show All Games with Duration
+    
+ SELECT 
+    name AS game,
+    CASE
+        WHEN HOUR(start) BETWEEN 0 AND 11 THEN 'Morning'
+        WHEN HOUR(start) BETWEEN 12 AND 17 THEN 'Afternoon'
+        ELSE 'Evening'
+    END AS 'Part of the Day',
+    CASE
+        WHEN duration <= 3 THEN 'Extra Short'
+        WHEN duration BETWEEN 3 AND 6 THEN 'Short'
+        WHEN duration BETWEEN 6 AND 10 THEN 'Long'
+        ELSE 'Extra Long'
+    END AS 'Duration'
+FROM
+    games;
+    
+    -- 16. Orders Table
+SELECT 
+    product_name,
+    order_date,
+    DATE_ADD(order_date, INTERVAL 3 DAY) AS 'pay_due',
+    DATE_ADD(order_date, INTERVAL 1 MONTH) AS 'deliver_due'
+FROM
+    orders;
+    
