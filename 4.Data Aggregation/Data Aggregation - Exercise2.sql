@@ -1,17 +1,17 @@
--- Data Aggregation - Exercise
--- 01. Records’ Count
+# Data Aggregation - Exercise
+# 01. Records’ Count
 SELECT 
-    COUNT(*)
+    COUNT(*) as count
 FROM
     gringotts.wizzard_deposits;
 
--- 02. Longest Magic Wand
+# 02. Longest Magic Wand
 SELECT 
     MAX(magic_wand_size) AS 'longest_magic_wand'
 FROM
     gringotts.wizzard_deposits;
 
--- 03. Longest Magic Wand per Deposit Groups
+# 03. Longest Magic Wand per Deposit Groups
 SELECT 
     deposit_group, MAX(magic_wand_size) AS 'longest_magic_wand'
 FROM
@@ -19,33 +19,36 @@ FROM
 GROUP BY deposit_group
 ORDER BY `longest_magic_wand` , deposit_group ASC;
 
--- 04. Smallest Deposit Group per Magic Wand Size
+# 04. Smallest Deposit Group per Magic Wand Size
 SELECT 
-    deposit_group, 
-    magic_wand_size
+    deposit_group
+ --    AVG(magic_wand_size) AS 'AVG'
 FROM
-    gringotts.wizzard_deposits;
-    
--- 05. Deposits Sum
+    gringotts.wizzard_deposits
+GROUP BY `deposit_group`
+ORDER BY AVG(magic_wand_size) ASC
+-- ORDER BY `AVG` ASC;
+LIMIT 1;
+
+# 05. Deposits Sum
 SELECT 
     deposit_group, SUM(deposit_amount) AS 'total_sum'
 FROM
     gringotts.wizzard_deposits
 GROUP BY deposit_group
-order by `total_sum`;
+ORDER BY `total_sum`ASC;
 
--- 6. Deposits Sum for Ollivander Family
+# 6. Deposits Sum for Ollivander Family
 SELECT 
     deposit_group, SUM(deposit_amount) AS 'total_sum'
 FROM
-    gringotts.wizzard_deposits
+    `wizzard_deposits`
 WHERE
-    magic_wand_creator = 'Ollivander family'
+   `magic_wand_creator` = 'Ollivander family'
 GROUP BY deposit_group
-ORDER BY deposit_group
-;
+ORDER BY deposit_group;
 
--- 7. Deposits Filter
+# 7. Deposits Filter
 SELECT 
     deposit_group, SUM(deposit_amount) AS 'total_sum'
 FROM
@@ -56,7 +59,7 @@ GROUP BY deposit_group
 HAVING `total_sum` < 150000
 ORDER BY `total_sum` DESC;
 
--- 08. Deposit Charge
+# 08. Deposit Charge
 SELECT 
     deposit_group,
     magic_wand_creator,
@@ -66,7 +69,7 @@ FROM
 GROUP BY deposit_group,magic_wand_creator
 ORDER BY magic_wand_creator , deposit_group;
 
--- 09. Age Groups
+# 09. Age Groups
 SELECT 
     CASE
         WHEN age BETWEEN 0 AND 10 THEN '[0-10]'
@@ -75,27 +78,29 @@ SELECT
         WHEN age BETWEEN 31 AND 40 THEN '[31-40]'
         WHEN age BETWEEN 41 AND 50 THEN '[41-50]'
         WHEN age BETWEEN 51 AND 60 THEN '[51-60]'
-       --  WHEN age > 61 THEN '[61+]'
+       --  WHEN age >= 61 THEN '[61+]'
         ELSE '[61+]'
     END AS 'age_group',
-    COUNT(*) AS 'wizard_count'
+    COUNT(age) AS 'wizard_count'
+    -- COUNT(*) AS 'wizard_count'
 FROM
     gringotts.wizzard_deposits
 GROUP BY `age_group`
-ORDER BY `age_group`;
+ORDER BY `wizard_count`;
 
--- 10. First Letter
-SELECT DISTINCT
-    SUBSTRING(`first_name`, 1, 1) AS first_letter
+# 10. First Letter
+SELECT
+SUBSTRING(`first_name`, 1, 1) AS first_letter
+ --  DISTINCT  SUBSTRING(`first_name`, 1, 1) AS first_letter
     -- DISTINCT LEFT(first_name, 1) AS "first_letter"
 FROM
     gringotts.wizzard_deposits
 WHERE
     deposit_group LIKE 'Troll Chest'
+    GROUP BY  `first_letter`
 ORDER BY `first_letter` ASC;
 
--- 11. Average Interest
-
+# 11. Average Interest
 SELECT 
     deposit_group,
     is_deposit_expired,
@@ -106,3 +111,81 @@ WHERE
     `deposit_start_date` > '1985-01-01'
 GROUP BY deposit_group , is_deposit_expired
 ORDER BY deposit_group DESC , is_deposit_expired ASC;
+
+# 12. Employees Minimum Salaries
+SELECT 
+    department_id, MIN(salary) AS 'minimum_salary'
+FROM
+    soft_uni.employees
+WHERE
+    department_id IN (2 , 5, 7) AND
+         hire_date > '2000-01-01'
+GROUP BY department_id
+--  HAVING  department_id IN (2 , 5, 7)
+ORDER BY department_id ASC;
+
+# 13. Employees Average Salaries
+-- 1
+CREATE TABLE `salary_more_than_3000` AS
+ SELECT * FROM
+   `employees`
+WHERE
+    `salary` > 30000;
+-- 2
+DELETE FROM soft_uni.salary_more_than_3000 
+ WHERE `manager_id` = 42;
+ 
+-- 3
+UPDATE soft_uni.salary_more_than_3000 
+SET 
+    `salary` = `salary` + 5000
+WHERE
+    `department_id` = 1;
+-- 4
+SELECT 
+department_id,AVG(salary) as ' avg_salary'
+FROM
+    soft_uni.salary_more_than_3000
+    group by department_id
+    order by department_id;
+    --
+    -- 1
+CREATE TABLE `salary_more_than_3000` AS
+ SELECT * FROM
+   `employees`
+WHERE
+    `salary` > 30000;
+-- 2
+DELETE FROM `salary_more_than_3000` 
+ WHERE `manager_id` = 42;
+ 
+-- 3
+UPDATE `salary_more_than_3000`
+SET 
+    `salary` = `salary` + 5000
+WHERE
+    `department_id` = 1;
+-- 4
+SELECT 
+department_id,AVG(salary) as 'avg_salary'
+FROM
+ `salary_more_than_3000`
+    group by department_id
+    order by department_id;
+    
+    # 14. Employees Maximum Salaries
+SELECT 
+    department_id, MAX(salary) AS 'max_salary'
+FROM
+    soft_uni.employees
+GROUP BY department_id
+HAVING `max_salary` NOT BETWEEN 30000 AND 70000
+ORDER BY department_id;
+    
+    
+    
+    
+    # 15. Employees Count Salaries
+    # 16. 3rd Highest Salary
+    # 17. Salary Challenge
+    # 18. Departments Total Salaries
