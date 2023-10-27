@@ -182,10 +182,69 @@ GROUP BY department_id
 HAVING `max_salary` NOT BETWEEN 30000 AND 70000
 ORDER BY department_id;
     
-    
-    
-    
     # 15. Employees Count Salaries
+SELECT 
+    COUNT(*) AS ''
+FROM
+    employees
+WHERE
+    manager_id IS NULL;
+  
     # 16. 3rd Highest Salary
+SELECT DISTINCT
+    department_id, salary
+FROM
+    employees
+ORDER BY department_id , salary DESC
+; 
+
+    -- 1
+SELECT 
+    department_id,
+    IF(COUNT(*) >= 3,
+        (SELECT DISTINCT salary
+            FROM  employees AS e2
+            WHERE  e1.department_id = e2.department_id
+            ORDER BY salary DESC
+            LIMIT 1 OFFSET 2),
+        NULL) AS third_highest_salary
+FROM   employees AS e1
+GROUP BY department_id;
+
+-- 2
+SELECT   department_id, MAX(salary) AS third_highest_salary
+FROM employees AS e1
+WHERE
+    (SELECT COUNT(DISTINCT salary)
+        FROM employees AS e2
+        WHERE  e1.department_id = e2.department_id
+                AND e1.salary <= e2.salary) = 3
+GROUP BY department_id;
+
+SELECT @@sql_mode;
+SET @@sql_mode = SYS.LIST_DROP(@@sql_mode, 'ONLY_FULL_GROUP_BY');
+SELECT @@sql_mode;
+
     # 17. Salary Challenge
+SELECT 
+    e.first_name, e.last_name, e.department_id
+FROM
+    employees as  e
+WHERE
+    e.salary > (SELECT 
+            AVG(salary)
+        FROM
+            employees as e2
+        WHERE
+            e2.department_id = e.department_id)
+ORDER BY e.department_id , e.employee_id
+LIMIT 10;
+    
     # 18. Departments Total Salaries
+SELECT 
+    department_id, SUM(salary) AS 'total_salary'
+FROM
+    employees
+GROUP BY department_id
+ORDER BY department_id;
+    
