@@ -106,18 +106,27 @@ LIMIT 5;
 #08. Employee 24
 # 75 / 100
 SELECT e.employee_id, e.first_name, 
-       CASE WHEN p.start_date > '2005-01-01' THEN NULL ELSE p.name END AS 'project_name'
+CASE WHEN p.start_date > '2005-01-01' THEN NULL ELSE p.name END AS 'project_name'
+-- if(YEAR(p.start_date)>=2005 ,null ,p.name ) AS 'project_name'
 FROM employees AS e
-LEFT JOIN employees_projects AS ep ON e.employee_id = ep.employee_id
-LEFT JOIN projects AS p ON ep.project_id = p.project_id
+ JOIN employees_projects AS ep ON e.employee_id = ep.employee_id
+ JOIN projects AS p ON ep.project_id = p.project_id
 WHERE e.employee_id = 24
 ORDER BY project_name ASC;
 
 #09. Employee Manager
-SELECT e.employee_id, e.first_name, e.manager_id, m.first_name AS manager_name
-FROM employees AS e
-JOIN employees AS m ON e.manager_id = m.employee_id
-WHERE m.manager_id IN (3, 7)
+
+SELECT 
+    e.employee_id,
+    e.first_name,
+    e.manager_id,
+    m.first_name AS manager_name
+FROM
+    employees AS e
+        JOIN
+    employees AS m ON e.manager_id = m.employee_id
+WHERE
+    e.manager_id IN (3 , 7)
 ORDER BY e.first_name ASC;
 
 #10. Employee Summary
