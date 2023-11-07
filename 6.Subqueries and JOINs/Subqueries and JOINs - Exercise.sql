@@ -130,13 +130,60 @@ WHERE e.manager_id IS NOT NULL
 ORDER BY e.employee_id
 LIMIT 5;
 
-
-
 #11. Min Average Salary
+
+SELECT MIN(average_salary) AS min_average_salary
+FROM (
+    SELECT department_id, AVG(salary) AS average_salary
+    FROM employees
+    GROUP BY department_id
+) AS department_avg_salaries;
 
 #12. Highest Peaks in Bulgaria
 
+SELECT 
+    mc.country_code, m.mountain_range, p.peak_name, p.elevation
+FROM
+    peaks AS p
+        JOIN
+    mountains AS m ON m.id = p.mountain_id
+        JOIN
+    mountains_countries AS mc ON mc.mountain_id = m.id
+        JOIN
+    countries AS c ON c.country_code = mc.country_code
+WHERE
+    p.elevation > 2835
+        AND c.country_name = 'Bulgaria'
+ORDER BY p.elevation DESC;
+  
 #13. Count Mountain Ranges
+SELECT 
+    c.country_code, COUNT(mountain_range) AS mountain_range_count
+FROM
+    countries AS c
+        JOIN
+    mountains_countries AS mc ON mc.country_code = c.country_code
+        JOIN
+    mountains AS m ON m.id = mc.mountain_id
+WHERE
+    c.country_name IN ('United States' , 'Russia', 'Bulgaria')
+GROUP BY c.country_code
+order by mountain_range_count DESC;
+
+#--2
+
+SELECT 
+    c.country_code, COUNT(mountain_range) AS mountain_range_count
+FROM
+    countries AS c
+        JOIN
+    mountains_countries AS mc ON mc.country_code = c.country_code
+        JOIN
+    mountains AS m ON m.id = mc.mountain_id
+WHERE
+    c.country_code IN ('US', 'RU', 'BG')
+GROUP BY c.country_code
+order by mountain_range_count DESC;
 
 #14. Countries with Rivers
 
