@@ -19,7 +19,7 @@ FROM
     addresses AS a ON e.address_id = a.address_id
         JOIN
     towns AS t ON a.town_id = t.town_id
-        AND a.town_id = t.town_id
+        
 ORDER BY first_name ASC , last_name
 LIMIT 5;
 
@@ -36,17 +36,19 @@ ORDER BY employee_id DESC;
 
 #04. Employee Departments
 SELECT 
-    employee_id, first_name, salary, d.name AS 'department_name'
+    employee_id,
+    first_name,
+ --    ROUND(salary, 2),
+	salary,
+    d.name AS 'department_name'
 FROM
     employees AS e
         JOIN
     departments AS d ON d.department_id = e.department_id
 WHERE
     e.salary > 15000
-   --  GROUP BY   e.salary
---     HAVING  e.salary>15000
-    order by d.department_id desc
-    limit 5;
+ORDER BY d.department_id DESC
+LIMIT 5;
     
 #05. Employees Without Project
 # -- 1
@@ -67,13 +69,14 @@ FROM
         LEFT JOIN
     employees_projects AS ep ON ep.employee_id = employees.employee_id
 WHERE
-    ep.employee_id IS NULL
+  --   ep.employee_id IS NULL
+  ep.project_id is null
 ORDER BY employee_id DESC
 LIMIT 3;
     
 #06. Employees Hired After
 SELECT 
-    first_name, last_name, hire_date, d.name
+    first_name, last_name, hire_date, d.name as 'dept_name'
 FROM
     employees AS e
         JOIN
@@ -95,7 +98,7 @@ FROM
         JOIN
     projects AS p ON p.project_id = ep.project_id
 WHERE
-    p.start_date > '2002-08-13'
+    DATE(p.start_date) > '2002-08-13'
         AND p.end_date IS NULL
 ORDER BY e.first_name ASC , `project_name` ASC
 LIMIT 5;
@@ -171,7 +174,6 @@ GROUP BY c.country_code
 order by mountain_range_count DESC;
 
 #--2
-
 SELECT 
     c.country_code, COUNT(mountain_range) AS mountain_range_count
 FROM
@@ -187,11 +189,44 @@ order by mountain_range_count DESC;
 
 #14. Countries with Rivers
 
+SELECT 
+    country_name, r.river_name
+FROM
+    countries AS c
+        JOIN
+    countries_rivers AS cr ON cr.country_code = c.country_code
+        JOIN
+    rivers AS r ON r.id = cr.river_id
+        JOIN
+    continents AS cc ON cc.continent_code = c.continent_code
+WHERE
+    cc.continent_name NOT LIKE 'Africa'
+ORDER BY country_name
+LIMIT 5;
+
+
+
+-- SELECT c.country_name, r.river_name
+-- FROM countries AS c
+-- JOIN countries_rivers AS cr ON c.country_code = cr.country_code
+-- JOIN rivers AS r ON r.id = cr.river_id
+-- JOIN continents AS cc ON cc.continent_code = c.continent_code
+-- WHERE cc.continent_name NOT LIKE 'Africa'
+-- ORDER BY c.country_name
+-- LIMIT 5;
+
 #15. *Continents and Currencies
 
 #16. Countries without any Mountains
 
+SELECT COUNT(*) AS country_count
+FROM countries
+WHERE country_code NOT IN (SELECT DISTINCT country_code FROM mountains_countries);
+
 #17. Highest Peak and Longest River by Country
 
+SELECT country_name
+FROM countries
 
+limit 5;
 
