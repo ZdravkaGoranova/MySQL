@@ -199,18 +199,16 @@ order by mountain_range_count DESC;
 #14. Countries with Rivers
 
 SELECT 
-    country_name, r.river_name
+    c.country_name, r.river_name
 FROM
     countries AS c
-        JOIN
-    countries_rivers AS cr ON cr.country_code = c.country_code
-        JOIN
+LEFT  JOIN
+    countries_rivers AS cr ON c.country_code = cr.country_code
+LEFT JOIN
     rivers AS r ON r.id = cr.river_id
-        JOIN
-    continents AS cc ON cc.continent_code = c.continent_code
-WHERE
-    cc.continent_name NOT LIKE 'Africa'
-ORDER BY country_name
+ JOIN continents as con on con.continent_code=c.continent_code
+    where continent_name = 'Africa'
+ORDER BY c.country_name ASC
 LIMIT 5;
 
 
