@@ -24,12 +24,65 @@ ORDER BY first_name ASC , last_name
 LIMIT 5;
 
 #03. Sales Employee
+SELECT 
+    employee_id, first_name, last_name, d.name
+FROM
+    employees AS e
+        JOIN
+    departments AS d ON e.department_id = d.department_id
+WHERE
+    d.name = 'Sales'
+ORDER BY employee_id DESC;
 
 #04. Employee Departments
-
+SELECT 
+    employee_id, first_name, salary, d.name AS 'department_name'
+FROM
+    employees AS e
+        JOIN
+    departments AS d ON d.department_id = e.department_id
+WHERE
+    e.salary > 15000
+   --  GROUP BY   e.salary
+--     HAVING  e.salary>15000
+    order by d.department_id desc
+    limit 5;
+    
 #05. Employees Without Project
+# -- 1
+SELECT employee_id, first_name
+FROM employees
+WHERE employee_id NOT IN (
+    SELECT DISTINCT employee_id
+    FROM employees_projects
+)
+ORDER BY employee_id DESC
+LIMIT 3;
 
+# -- 2
+SELECT 
+    employees.employee_id, first_name
+FROM
+    employees
+        LEFT JOIN
+    employees_projects AS ep ON ep.employee_id = employees.employee_id
+WHERE
+    ep.employee_id IS NULL
+ORDER BY employee_id DESC
+LIMIT 3;
+    
 #06. Employees Hired After
+SELECT 
+    first_name, last_name, hire_date, d.name
+FROM
+    employees AS e
+        JOIN
+    departments AS d ON d.department_id = e.department_id
+WHERE
+    d.name IN ('Sales' , 'Finance')
+ --    AND (dept_name = 'Sales' OR dept_name = 'Finance')
+        AND hire_date > '1999-1-1'
+ORDER BY hire_date ASC;
 
 #07. Employees with Project
 
