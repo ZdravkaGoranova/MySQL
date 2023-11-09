@@ -218,19 +218,39 @@ SELECT
     c.country_name, r.river_name
 FROM
     countries AS c
-LEFT  JOIN
+        LEFT JOIN
     countries_rivers AS cr ON c.country_code = cr.country_code
-LEFT JOIN
+        LEFT JOIN
     rivers AS r ON r.id = cr.river_id
- JOIN continents as con on con.continent_code=c.continent_code
-    where continent_name = 'Africa'
+        JOIN
+    continents AS con ON con.continent_code = c.continent_code
+WHERE
+    continent_name = 'Africa'
+--    WHERE c.continent_code='AF'
 ORDER BY c.country_name ASC
 LIMIT 5;
 
 #15. *Continents and Currencies
+SELECT 
+    c.continent_code,
+    c.currency_code,
+    COUNT(*) AS 'currency_usage'
+FROM
+    countries AS c
+GROUP BY c.continent_code , c.currency_code
+HAVING currency_usage > 1
+    AND currency_usage = (SELECT 
+        COUNT(*) AS 'count_off_currencies'
+    FROM
+        countries AS c2
+    WHERE
+        C2.continent_code = c.continent_code
+    GROUP BY C2.currency_code
+    ORDER BY count_off_currencies DESC
+    LIMIT 1)
+ORDER BY c.continent_code , c.currency_code;
 
 #16. Countries without any Mountains
-
 SELECT COUNT(*) AS country_count
 FROM countries
 WHERE country_code NOT IN (SELECT DISTINCT country_code FROM mountains_countries);
