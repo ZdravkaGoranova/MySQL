@@ -88,7 +88,6 @@ WHERE
 ORDER BY hire_date ASC;
 
 #07. Employees with Project
-
 SELECT 
     e.employee_id, e.first_name, p.name AS 'project_name'
 FROM
@@ -115,7 +114,6 @@ WHERE e.employee_id = 24
 ORDER BY project_name ASC;
 
 #09. Employee Manager
-
 SELECT 
     e.employee_id,
     e.first_name,
@@ -135,15 +133,28 @@ SELECT
     CONCAT_WS(' ', e.first_name, e.last_name) AS 'employee_name',
     CONCAT_WS(' ', m.first_name, m.last_name) AS 'manager_name',
     d.name AS ' department_name'
+FROM
+    employees AS e
+        LEFT JOIN
+    employees AS m ON e.manager_id = m.employee_id
+        JOIN
+    departments AS d ON e.department_id = d.department_id
+ORDER BY e.employee_id
+LIMIT 5;
+
+# --2
+SELECT 
+    e.employee_id,
+    CONCAT_WS(' ', e.first_name, e.last_name) AS 'employee_name',
+    CONCAT_WS(' ', m.first_name, m.last_name) AS 'manager_name',
+    d.name AS ' department_name'
 FROM employees AS e
 JOIN employees AS m ON e.manager_id = m.employee_id
 JOIN departments AS d ON e.department_id = d.department_id
-WHERE e.manager_id IS NOT NULL
 ORDER BY e.employee_id
 LIMIT 5;
 
 #11. Min Average Salary
-
 SELECT MIN(average_salary) AS min_average_salary
 FROM (
     SELECT department_id, AVG(salary) AS average_salary
@@ -151,8 +162,16 @@ FROM (
     GROUP BY department_id
 ) AS department_avg_salaries;
 
-#12. Highest Peaks in Bulgaria
+# --2
+SELECT 
+    AVG(salary) AS 'min_average_salary'
+FROM
+    employees
+GROUP BY department_id
+ORDER BY min_average_salary
+LIMIT 1;
 
+#12. Highest Peaks in Bulgaria
 SELECT 
     mc.country_code, m.mountain_range, p.peak_name, p.elevation
 FROM
@@ -184,20 +203,17 @@ order by mountain_range_count DESC;
 
 #--2
 SELECT 
-    c.country_code, COUNT(mountain_range) AS mountain_range_count
+    c.country_code,
+    COUNT(mc.country_code) AS mountain_range_count
 FROM
     countries AS c
         JOIN
     mountains_countries AS mc ON mc.country_code = c.country_code
-        JOIN
-    mountains AS m ON m.id = mc.mountain_id
-WHERE
-    c.country_code IN ('US', 'RU', 'BG')
 GROUP BY c.country_code
-order by mountain_range_count DESC;
+HAVING c.country_code IN ('US' , 'RU', 'BG')
+ORDER BY mountain_range_count DESC;
 
 #14. Countries with Rivers
-
 SELECT 
     c.country_name, r.river_name
 FROM
