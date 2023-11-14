@@ -87,6 +87,7 @@ SET salary_level = CASE
 --     ELSE
 --         SET salary_level = 'High';
 --     END IF;
+
 RETURN salary_level;
 END $$
 DELIMITER ;
@@ -94,8 +95,55 @@ DELIMITER ;
 SELECT  ufn_get_salary_level(125500.00) AS salary_Level;
 
 # 06. Employees by Salary Level
+DELIMITER $$
+CREATE PROCEDURE usp_get_employees_by_salary_level( IN salary_level VARCHAR(20))
+BEGIN
+SELECT 
+ first_name,last_name
+FROM
+    employees
+WHERE
+        ufn_get_salary_level(salary) = salary_level
+    ORDER BY
+        first_name DESC,
+        last_name DESC;
+END  $$
+DELIMITER ;
+;
+CALL usp_get_employees_by_salary_level('High');
+
 #  07. Define Function
+DELIMITER $$
+CREATE FUNCTION ufn_is_word_comprised(
+    set_of_letters VARCHAR(50),
+    word VARCHAR(50)
+) RETURNS INT
+DETERMINISTIC
+
+BEGIN
+    DECLARE set_len INT;
+    DECLARE word_len INT;
+    DECLARE i INT;
+
+    SET set_len = LENGTH(set_of_letters);
+    SET word_len = LENGTH(word);
+    SET i = 1;
+
+    WHILE i <= set_len DO
+        IF LOCATE(SUBSTRING(set_of_letters, i, 1), word) = 0 THEN
+            RETURN 0; 
+        END IF;
+        SET i = i + 1;
+    END WHILE;
+    RETURN 1; 
+END $$
+DELIMITER ;
+;
+SELECT UFN_IS_WORD_COMPRISED('oistmiahf', 'Sofia') AS result;
+
 # 08. Find Full Name
+
+
 #  9. People with Balance Higher Than
 # 10. Future Value Function
 # 11. Calculating Interest
