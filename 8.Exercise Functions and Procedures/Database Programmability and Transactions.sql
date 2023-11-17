@@ -142,11 +142,64 @@ DELIMITER ;
 SELECT UFN_IS_WORD_COMPRISED('oistmiahf', 'Sofia') AS result;
 
 # 08. Find Full Name
-
+DELIMITER $$
+CREATE PROCEDURE usp_get_holders_full_name()
+BEGIN
+SELECT 
+   concat_ws(' ',first_name,last_name ) AS 'full_name'
+FROM
+ account_holders
+ ORDER BY `full_name`,id;
+END  $$
+DELIMITER ;
+;
+CALL usp_get_holders_full_name();
 
 #  9. People with Balance Higher Than
 # 10. Future Value Function
+DELIMITER $$
+CREATE FUNCTION ufn_calculate_future_value(
+    initial_sum DECIMAL(10, 4),
+    yearly_interest_rate DOUBLE,
+    number_of_years INT
+) RETURNS DECIMAL(10, 4)
+
+DETERMINISTIC
+BEGIN
+DECLARE future_value DECIMAL(10, 4);
+SET future_value =initial_sum *(POW((1+`yearly_interest_rate`), `number_of_years`));
+RETURN future_value;
+END  $$
+DELIMITER ;
+;
+SELECT ufn_calculate_future_value(1000, 0.5, 5)AS 'Output';
+
 # 11. Calculating Interest
+DELIMITER $$
+CREATE PROCEDURE  usp_calculate_future_value_for_account(
+id INT,
+interest_rate DECIMAL(10, 4)
+)
+BEGIN
+
+SELECT 
+    ah.id,
+    ah.first_name,
+    ah.last_name,
+    acc.balance,
+    UFN_CALCULATE_FUTURE_VALUE(acc.balance, interest_rate, 5) AS ' balance_in_5_years'
+FROM
+    account_holders AS ah
+        JOIN
+    accounts AS acc ON acc.account_holder_id = ah.id
+WHERE
+    acc.account_holder_id = `id`
+LIMIT 1;
+END $$
+DELIMITER ;
+;
+CALL usp_calculate_future_value_for_account(2,0.1);
+
 # 12. Deposit Money
 # 13. Withdraw Money
 # 14. Money Transfer
