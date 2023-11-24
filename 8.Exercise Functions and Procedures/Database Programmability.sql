@@ -248,8 +248,8 @@ SELECT
     ah.id,
     ah.first_name,
     ah.last_name,
-    acc.balance,
-    UFN_CALCULATE_FUTURE_VALUE(acc.balance, interest_rate, 5) AS ' balance_in_5_years'
+    acc.balance as current_balance,
+    UFN_CALCULATE_FUTURE_VALUE(acc.balance, interest_rate, 5) AS 'balance_in_5_years'
 FROM
     account_holders AS ah
         JOIN
@@ -263,8 +263,7 @@ DELIMITER ;
 CALL usp_calculate_future_value_for_account(1,0.1);
 
 # 12. Deposit Money
-
-delimiter $$
+DELIMITER  $$
 CREATE PROCEDURE usp_deposit_money(
 account_id INT,
 money_amount DECIMAL(10, 4))
@@ -278,12 +277,12 @@ IF money_amount <=0
  THEN
    ROLLBACK;
 ELSE
-UPDATE accounts  SET balance = balance + `money_amount` 
-WHERE account_holder_id = `account_id`;
+UPDATE accounts  as a  SET balance = balance + `money_amount` 
+WHERE a.id = `account_id`;
 COMMIT;
 END IF;
-END $$
-delimiter ;
+END  $$
+DELIMITER ;
 ;
 
 SELECT 
@@ -297,32 +296,33 @@ CALL usp_deposit_money(1, 10);
 CALL usp_deposit_money(1, 10.0000);
 
 # 13. Withdraw Money
-delimiter $$
+
+
+##2
+DELIMITER  $$
 CREATE PROCEDURE usp_withdraw_money(
 account_id INT,
 money_amount DECIMAL(10, 4))
 
 BEGIN
-DECLARE current_balance DECIMAL(10, 4);
-DECLARE current_id  INT;
+IF(money_amount  >0) THEN
 START TRANSACTION;
 
-SELECT balance INTO current_balance
-    FROM accounts as acc
-    WHERE account_id = acc.account_holder_id
-    FOR UPDATE;
+UPDATE accounts  as a
+SET 
+    balance = balance - `money_amount`
+WHERE
+   a.id = `account_id`;
 
-IF (money_amount <=0 or current_balance < `money_amount`)
+IF (SELECT balance FROM accounts where account_id=id ) <0
  THEN
    ROLLBACK;
-
 ELSE
-UPDATE accounts  SET balance = balance - `money_amount` 
-WHERE account_holder_id = `account_id`;
 COMMIT;
 END IF;
+END IF;
 END $$
-delimiter ;
+DELIMITER  ;
 ;
 
 SELECT 
@@ -336,8 +336,39 @@ CALL usp_withdraw_money(1, 10);
 CALL usp_withdraw_money(1, 10.0000);
 
 
-
 # 14. Money Transfer
+DELIMITER $$
+CREATE PROCEDURE  usp_transfer_money(
+from_account_id INT, 
+to_account_id INT, 
+amount  DECIMAL(10, 4))
+BEGIN
+IF(amount >0 
+AND from_account_id <> to_account_id )
+AND(SELECT id FROM accounts where  from_account_id=id) is not null
+AND(SELECT id FROM accounts where  to_account_id =id) is not null
+AND(SELECT balance  FROM accounts where from_account_id =id)>= amount
+ THEN
+START TRANSACTION;
+
+UPDATE accounts
+set balance = balance - amount
+where id=from_account_id;
+
+UPDATE accounts
+set balance = balance + amount
+where id=to_account_id;
+
+COMMIT;
+ELSE
+   ROLLBACK;
+END IF;
+END $$
+DELIMITER  ;
+;
+SELECT * FROM accounts where id in (1,2);
+CALL  usp_transfer_money(1,2,100)
+
 #  15. Log Accounts Trigger
 # 16. Emails Trigger
 # 
